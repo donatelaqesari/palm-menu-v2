@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palm Beach Bar — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal: #0f3d35; --teal-mid: #1a5246; --gold: #c8a84b;
+      --gold-light: #e8c96a; --cream: #fff8ef; --sand: #d4b896;
+      --text: #1a1208; --danger: #e05252; --success: #4caf7d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #0a2820; color: var(--cream); min-height: 100vh; }
+
+    .topbar {
+      background: rgba(10,40,32,0.95);
+      border-bottom: 1px solid rgba(200,168,75,0.2);
+      padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px);
+    }
+    .topbar-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold-light); }
+    .topbar-sub { font-size: 11px; color: var(--sand); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,168,75,0.12);
+      border-radius: 16px; padding: 24px; margin-bottom: 24px;
+    }
+    .card-title { font-size: 16px; font-weight: 600; color: var(--gold); margin-bottom: 16px; }
+
+    .qr-box { text-align: center; }
+    .qr-box img { border-radius: 12px; border: 3px solid rgba(200,168,75,0.3); max-width: 220px; }
+    .qr-url { font-size: 13px; color: var(--sand); margin-top: 8px; word-break: break-all; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 50px;
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; border: none; text-decoration: none;
+    }
+    .btn-gold { background: rgba(200,168,75,0.2); border: 1px solid rgba(200,168,75,0.4); color: var(--gold-light); }
+    .btn-gold:hover { background: rgba(200,168,75,0.3); }
+    .btn-danger { background: rgba(224,82,82,0.15); border: 1px solid rgba(224,82,82,0.3); color: #f08; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .stat-card {
+      background: rgba(200,168,75,0.08); border: 1px solid rgba(200,168,75,0.15);
+      border-radius: 12px; padding: 16px; text-align: center;
+    }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--gold); }
+    .stat-label { font-size: 12px; color: var(--sand); margin-top: 4px; }
+
+    .menu-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .menu-table th { text-align: left; padding: 10px 12px; color: var(--gold); font-weight: 500; border-bottom: 1px solid rgba(200,168,75,0.15); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .menu-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--cream); }
+    .menu-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .cat-badge { font-size: 11px; background: rgba(200,168,75,0.15); color: var(--gold); padding: 2px 8px; border-radius: 20px; }
+    .price-cell { color: var(--gold); font-weight: 600; }
+
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-tab { padding: 6px 14px; border-radius: 50px; border: 1px solid rgba(200,168,75,0.2); background: transparent; color: rgba(255,248,239,0.5); font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .filter-tab.active { background: rgba(200,168,75,0.2); border-color: rgba(200,168,75,0.4); color: var(--gold-light); }
+
+    input.search { width: 100%; padding: 10px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(200,168,75,0.2); border-radius: 50px; color: var(--cream); font-size: 14px; outline: none; margin-bottom: 16px; font-family: 'Inter', sans-serif; }
+    input.search::placeholder { color: rgba(255,248,239,0.3); }
+
+    .footer-note { text-align: center; color: rgba(255,248,239,0.3); font-size: 12px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <div class="topbar-title">🌴 Palm Beach Bar</div>
+    <div class="topbar-sub">Menu Admin Dashboard</div>
+  </div>
+  <a href="/" class="btn btn-gold">View Menu →</a>
+</div>
+
+<div class="container">
+
+  <!-- QR Code -->
+  <div class="card">
+    <div class="card-title">📱 QR Code</div>
+    <div class="qr-box">
+      <div id="qr-loading" style="color:var(--sand);font-size:13px">Generating QR code…</div>
+      <img id="qr-img" style="display:none" alt="Menu QR Code" />
+      <p class="qr-url" id="qr-url"></p>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="downloadQR()">⬇ Download QR</button>
+        <button class="btn btn-gold" onclick="copyUrl()">📋 Copy URL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <div class="card-title">📊 Menu Overview</div>
+    <div class="stats-grid" id="stats"></div>
+  </div>
+
+  <!-- Menu Items Table -->
+  <div class="card">
+    <div class="card-title">🍹 All Menu Items</div>
+    <input type="text" class="search" id="table-search" placeholder="Filter items…" />
+    <div class="filter-tabs" id="filter-tabs"></div>
+    <div style="overflow-x:auto">
+      <table class="menu-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody id="menu-tbody"></tbody>
+      </table>
+    </div>
+    <p id="table-count" style="font-size:12px;color:var(--sand);margin-top:12px;text-align:right"></p>
+  </div>
+
+</div>
+
+<p class="footer-note">Palm Beach Bar · Saranda, Albania · Bulevardit</p>
+
+<script>
+let menuData = null;
+let activeFilter = 'all';
+let searchQ = '';
+
+async function init() {
+  const [menuRes, qrRes] = await Promise.all([
+    fetch('/api/menu'),
+    fetch(`/api/qr?url=${encodeURIComponent(window.location.origin)}`)
+  ]);
+  menuData = await menuRes.json();
+  const qrData = await qrRes.json();
+
+  // QR
+  document.getElementById('qr-loading').style.display = 'none';
+  const qrImg = document.getElementById('qr-img');
+  qrImg.src = qrData.qr;
+  qrImg.style.display = 'block';
+  document.getElementById('qr-url').textContent = qrData.url;
+
+  // Stats
+  const totalItems = menuData.categories.reduce((s,c) => s + c.items.length, 0);
+  const prices = menuData.categories.flatMap(c => c.items.map(i => i.price));
+  const avgPrice = Math.round(prices.reduce((a,b)=>a+b,0)/prices.length);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${menuData.categories.length}</div><div class="stat-label">Categories</div></div>
+    <div class="stat-card"><div class="stat-number">${totalItems}</div><div class="stat-label">Menu Items</div></div>
+    <div class="stat-card"><div class="stat-number">${avgPrice}</div><div class="stat-label">Avg Price (ALL)</div></div>
+    <div class="stat-card"><div class="stat-number">${minPrice}–${maxPrice}</div><div class="stat-label">Price Range (ALL)</div></div>
+  `;
+
+  // Filter tabs
+  const tabs = document.getElementById('filter-tabs');
+  tabs.innerHTML = '<button class="filter-tab active" data-cat="all">All</button>' +
+    menuData.categories.map(c => `<button class="filter-tab" data-cat="${c.id}">${c.icon} ${c.name}</button>`).join('');
+  tabs.addEventListener('click', e => {
+    const btn = e.target.closest('.filter-tab');
+    if (!btn) return;
+    activeFilter = btn.dataset.cat;
+    tabs.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === activeFilter));
+    renderTable();
+  });
+
+  // Search
+  document.getElementById('table-search').addEventListener('input', e => {
+    searchQ = e.target.value.toLowerCase();
+    renderTable();
+  });
+
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('menu-tbody');
+  let allItems = [];
+  for (const cat of menuData.categories) {
+    if (activeFilter !== 'all' && cat.id !== activeFilter) continue;
+    for (const item of cat.items) {
+      if (searchQ && !item.name.toLowerCase().includes(searchQ) && !item.description.toLowerCase().includes(searchQ)) continue;
+      allItems.push({ ...item, catName: cat.name, catIcon: cat.icon });
+    }
+  }
+  tbody.innerHTML = allItems.map(item => `
+    <tr>
+      <td><strong>${item.name}</strong></td>
+      <td><span class="cat-badge">${item.catIcon} ${item.catName}</span></td>
+      <td style="color:var(--sand);font-size:13px">${item.description}</td>
+      <td class="price-cell">${item.price.toLocaleString()} ALL</td>
+      <td>${(item.tags||[]).map(t=>`<span style="font-size:10px;background:rgba(200,168,75,0.1);color:var(--gold);padding:2px 6px;border-radius:10px;margin-right:4px">${t}</span>`).join('')}</td>
+    </tr>
+  `).join('');
+  document.getElementById('table-count').textContent = `${allItems.length} item${allItems.length !== 1 ? 's' : ''}`;
+}
+
+function downloadQR() {
+  const img = document.getElementById('qr-img');
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = 'palm-beach-bar-qr.png';
+  a.click();
+}
+
+function copyUrl() {
+  navigator.clipboard.writeText(window.location.origin);
+  alert('URL copied!');
+}
+
+init();
+</script>
+</body>
+</html>
