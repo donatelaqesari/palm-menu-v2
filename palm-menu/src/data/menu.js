@@ -13,7 +13,7 @@ export const menuData = {
         { id: 5,  name: "Pornstar Martini", price: 500, description: "Vanilla vodka, passion fruit, prosecco shot", tags: ["popular"] },
         { id: 6,  name: "Pina Colada",      price: 500, description: "Rum, coconut cream, pineapple juice" },
         { id: 7,  name: "Pink Lady",        price: 500, description: "Gin, grenadine, lemon juice, egg white" },
-        { id: 8,  name: "Daiquiry",         price: 500, description: "Rum, lime juice, sugar syrup" },
+        { id: 8,  name: "Daiquiri",         price: 500, description: "Rum, lime juice, sugar syrup" },
       ]
     },
     {
@@ -52,11 +52,7 @@ export const menuData = {
       description: "Quick & bold — choose your poison",
       items: [
         { id: 30, name: "Tequila Shot",  price: 300, description: "100% agave tequila with lime & salt" },
-        { id: 31, name: "Sambuca",       price: 350, description: "Italian anise liqueur" },
         { id: 32, name: "Jägermeister", price: 350, description: "German herbal liqueur" },
-        { id: 33, name: "B52",           price: 400, description: "Kahlúa, Baileys, Grand Marnier layered" },
-        { id: 34, name: "Baby Guinness", price: 400, description: "Kahlúa topped with Baileys" },
-        { id: 35, name: "Limoncello",    price: 350, description: "Italian lemon liqueur" },
       ]
     },
     {

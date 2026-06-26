@@ -951,31 +951,99 @@ function setupScrollSpy() {
   document.querySelectorAll('.cat-section, #section-reviews').forEach(s => obs.observe(s));
 }
 
+// async function loadReviews() {
+//   try {
+//     const res = await fetch(`${API}/reviews`);
+//     const reviews = await res.json();
+//     const list = document.getElementById('reviews-list');
+//     if (!reviews.length) {
+//       list.innerHTML = '<p style="color:var(--sand);text-align:center;padding:18px 0">No reviews yet — be the first! 🌴</p>';
+//       document.getElementById('avg-text').textContent = 'No reviews yet';
+//       return;
+//     }
+//     const avg = reviews.reduce((s,r) => s+r.rating,0) / reviews.length;
+//     const rounded = Math.round(avg);
+//     document.getElementById('avg-stars').textContent = '★'.repeat(rounded)+'☆'.repeat(5-rounded);
+//     document.getElementById('avg-text').textContent = `${avg.toFixed(1)} / 5 · ${reviews.length} review${reviews.length!==1?'s':''}`;
+//     list.innerHTML = reviews.map(r => `
+//       <div class="rev-card">
+//         <div class="rev-top">
+//           <span class="rev-name">${esc(r.name)}</span>
+//           <span class="rev-date">${r.date}</span>
+//         </div>
+//         <div class="rev-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+//         <div class="rev-text">"${esc(r.text)}"</div>
+//       </div>`).join('');
+//   } catch(e) {}
+// }
+
+let reviewPage = 1;
+const REVIEWS_PER_PAGE = 5;
+let allReviews = [];
+
 async function loadReviews() {
   try {
     const res = await fetch(`${API}/reviews`);
-    const reviews = await res.json();
-    const list = document.getElementById('reviews-list');
-    if (!reviews.length) {
-      list.innerHTML = '<p style="color:var(--sand);text-align:center;padding:18px 0">No reviews yet — be the first! 🌴</p>';
-      document.getElementById('avg-text').textContent = 'No reviews yet';
-      return;
-    }
-    const avg = reviews.reduce((s,r) => s+r.rating,0) / reviews.length;
-    const rounded = Math.round(avg);
-    document.getElementById('avg-stars').textContent = '★'.repeat(rounded)+'☆'.repeat(5-rounded);
-    document.getElementById('avg-text').textContent = `${avg.toFixed(1)} / 5 · ${reviews.length} review${reviews.length!==1?'s':''}`;
-    list.innerHTML = reviews.map(r => `
-      <div class="rev-card">
-        <div class="rev-top">
-          <span class="rev-name">${esc(r.name)}</span>
-          <span class="rev-date">${r.date}</span>
-        </div>
-        <div class="rev-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
-        <div class="rev-text">"${esc(r.text)}"</div>
-      </div>`).join('');
+    allReviews = await res.json();
+    reviewPage = 1;
+    renderReviews();
   } catch(e) {}
 }
+
+function renderReviews() {
+  const list = document.getElementById('reviews-list');
+  if (!allReviews.length) {
+    list.innerHTML = '<p style="color:var(--sand);text-align:center;padding:18px 0">No reviews yet — be the first! 🌴</p>';
+    document.getElementById('avg-text').textContent = 'No reviews yet';
+    return;
+  }
+  const avg = allReviews.reduce((s,r) => s+r.rating,0) / allReviews.length;
+  const rounded = Math.round(avg);
+  document.getElementById('avg-stars').textContent = '★'.repeat(rounded)+'☆'.repeat(5-rounded);
+  document.getElementById('avg-text').textContent = `${avg.toFixed(1)} / 5 · ${allReviews.length} review${allReviews.length!==1?'s':''}`;
+
+  const totalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+  const start = (reviewPage - 1) * REVIEWS_PER_PAGE;
+  const pageReviews = allReviews.slice(start, start + REVIEWS_PER_PAGE);
+
+  list.innerHTML = pageReviews.map(r => `
+    <div class="rev-card">
+      <div class="rev-top">
+        <span class="rev-name">${esc(r.name)}</span>
+        <span class="rev-date">${r.date}</span>
+      </div>
+      <div class="rev-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      <div class="rev-text">"${esc(r.text)}"</div>
+    </div>`).join('');
+
+  // Pagination controls
+  if (totalPages > 1) {
+    list.innerHTML += `
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)">
+        <button onclick="changePage(-1)" ${reviewPage === 1 ? 'disabled' : ''}
+          style="padding:8px 18px;border-radius:50px;border:1px solid rgba(212,160,32,0.35);
+          background:rgba(212,160,32,0.1);color:var(--gold);font-family:'Inter',sans-serif;
+          font-size:13px;cursor:pointer;opacity:${reviewPage === 1 ? '0.3' : '1'}">
+          ← Prev
+        </button>
+        <span style="font-size:13px;color:var(--sand)">${reviewPage} / ${totalPages}</span>
+        <button onclick="changePage(1)" ${reviewPage === totalPages ? 'disabled' : ''}
+          style="padding:8px 18px;border-radius:50px;border:1px solid rgba(212,160,32,0.35);
+          background:rgba(212,160,32,0.1);color:var(--gold);font-family:'Inter',sans-serif;
+          font-size:13px;cursor:pointer;opacity:${reviewPage === totalPages ? '0.3' : '1'}">
+          Next →
+        </button>
+      </div>`;
+  }
+}
+
+function changePage(dir) {
+  const totalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+  reviewPage = Math.max(1, Math.min(totalPages, reviewPage + dir));
+  renderReviews();
+  document.getElementById('section-reviews').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function setupReviewForm() {

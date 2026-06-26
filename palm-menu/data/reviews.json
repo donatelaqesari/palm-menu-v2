@@ -20,7 +20,28 @@
       "rating": 4,
       "text": "Loved the Pina Colada and the vibe. Will definitely come back!",
       "date": "2025-06-20"
+    },
+    {
+      "id": 4,
+      "name": "krist",
+      "rating": 4,
+      "text": "best cocktails",
+      "date": "2026-06-26"
+    },
+    {
+      "id": 5,
+      "name": "niall",
+      "rating": 5,
+      "text": "mocktails really tasty!!",
+      "date": "2026-06-26"
+    },
+    {
+      "id": 6,
+      "name": "calumn",
+      "rating": 5,
+      "text": "good vibes and service",
+      "date": "2026-06-26"
     }
   ],
-  "nextId": 4
+  "nextId": 7
 }
